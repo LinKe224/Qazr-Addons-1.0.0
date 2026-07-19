@@ -1,3 +1,14 @@
+/*
+ * Decompiled with CFR 0.152.
+ * 
+ * Could not load the following classes:
+ *  meteordevelopment.meteorclient.addons.MeteorAddon
+ *  meteordevelopment.meteorclient.systems.modules.Category
+ *  meteordevelopment.meteorclient.systems.modules.Module
+ *  meteordevelopment.meteorclient.systems.modules.Modules
+ *  org.slf4j.Logger
+ *  org.slf4j.LoggerFactory
+ */
 package com.macekill.addon;
 
 import com.macekill.addon.modules.AutoFuckModule;
@@ -16,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 public class MaceKillAddon
 extends MeteorAddon {
-    public static final Logger LOG = LoggerFactory.getLogger("Qazr-Addons");
+    public static final Logger LOG = LoggerFactory.getLogger((String)"Qazr-Addons");
     public static final Category CATEGORY = new Category("Qazr1234");
 
     public void onInitialize() {
@@ -39,3 +50,4 @@ extends MeteorAddon {
         return "com.macekill.addon";
     }
 }
+

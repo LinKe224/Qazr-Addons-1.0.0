@@ -1,3 +1,40 @@
+/*
+ * Decompiled with CFR 0.152.
+ * 
+ * Could not load the following classes:
+ *  meteordevelopment.meteorclient.events.render.Render3DEvent
+ *  meteordevelopment.meteorclient.events.world.TickEvent$Post
+ *  meteordevelopment.meteorclient.renderer.ShapeMode
+ *  meteordevelopment.meteorclient.settings.BoolSetting$Builder
+ *  meteordevelopment.meteorclient.settings.ColorSetting$Builder
+ *  meteordevelopment.meteorclient.settings.DoubleSetting$Builder
+ *  meteordevelopment.meteorclient.settings.IntSetting$Builder
+ *  meteordevelopment.meteorclient.settings.Setting
+ *  meteordevelopment.meteorclient.settings.SettingGroup
+ *  meteordevelopment.meteorclient.systems.modules.Module
+ *  meteordevelopment.meteorclient.utils.render.color.Color
+ *  meteordevelopment.meteorclient.utils.render.color.SettingColor
+ *  meteordevelopment.orbit.EventHandler
+ *  net.minecraft.Hand
+ *  net.minecraft.PlayerInventory
+ *  net.minecraft.Item
+ *  net.minecraft.Items
+ *  net.minecraft.BlockView
+ *  net.minecraft.Blocks
+ *  net.minecraft.Block
+ *  net.minecraft.BlockPos
+ *  net.minecraft.BlockPos$class_2339
+ *  net.minecraft.Direction
+ *  net.minecraft.FlowerBlock
+ *  net.minecraft.Position
+ *  net.minecraft.Vec3i
+ *  net.minecraft.Vec3d
+ *  net.minecraft.TallFlowerBlock
+ *  net.minecraft.Text
+ *  net.minecraft.BlockState
+ *  net.minecraft.FluidTags
+ *  net.minecraft.ClientWorld
+ */
 package com.macekill.addon.modules;
 
 import com.macekill.addon.MaceKillAddon;
@@ -26,24 +63,24 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.class_1268;
-import net.minecraft.class_1661;
-import net.minecraft.class_1792;
-import net.minecraft.class_1802;
-import net.minecraft.class_1922;
-import net.minecraft.class_2246;
-import net.minecraft.class_2248;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_2356;
-import net.minecraft.class_2374;
-import net.minecraft.class_2382;
-import net.minecraft.class_243;
-import net.minecraft.class_2521;
-import net.minecraft.class_2561;
-import net.minecraft.class_2680;
-import net.minecraft.class_3486;
-import net.minecraft.class_638;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
+import net.minecraft.world.BlockView;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.Block;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.block.FlowerBlock;
+import net.minecraft.util.math.Position;
+import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.block.TallFlowerBlock;
+import net.minecraft.text.Text;
+import net.minecraft.block.BlockState;
+import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.client.world.ClientWorld;
 
 public class AutoMineModule
 extends Module {
@@ -74,64 +111,64 @@ extends Module {
     private final Setting<SettingColor> oreColor;
     private final Setting<SettingColor> targetColor;
     private final Setting<SettingColor> pathColor;
-    private final Set<class_2338> orePositions;
-    private class_2338 currentTarget;
-    private final List<class_2338> waypoints;
+    private final Set<BlockPos> orePositions;
+    private BlockPos currentTarget;
+    private final List<BlockPos> waypoints;
     private int wpIndex;
     private Phase phase;
     private int scanCooldown;
     private int tickCounter;
-    private class_2338 breakingPos;
+    private BlockPos breakingPos;
     private int breakTicks;
     private int stuckTicks;
     private boolean isStuck;
-    private class_2338 lastPos;
+    private BlockPos lastPos;
     private int targetLockTime;
     private int tunnelY;
     private boolean wasFlying;
     private Method getCpuLoadMethod;
     private int cpuCheckTick;
     private long perfPauseUntil;
-    private final Map<class_2338, Long> abandonBlacklist;
-    private final Map<class_2338, Long> dugPositions;
+    private final Map<BlockPos, Long> abandonBlacklist;
+    private final Map<BlockPos, Long> dugPositions;
     private long lastOreMinedTime;
     private static Field selectedSlotField;
 
     public AutoMineModule() {
         super(MaceKillAddon.CATEGORY, "\u77ff\u7269\u8ffd\u8e2a", "Wurst TunnelHack\u98ce\u683c: \u6298\u7ebf\u5bfb\u8def+\u98de\u884c\u5782\u76f4+\u81ea\u52a8\u6316\u6398");
         this.sgGeneral = this.settings.getDefaultGroup();
-        this.scanRange = this.sgGeneral.add((Setting)((DoubleSetting.Builder)((DoubleSetting.Builder)new DoubleSetting.Builder().name("\u626b\u63cf\u8303\u56f4")).description("\u641c\u7d22\u77ff\u77f3\u7684\u6700\u5927\u534a\u5f84(\u683c)")).defaultValue(64.0).min(8.0).max(256.0).sliderMax(128.0).build());
-        this.autoMine = this.sgGeneral.add((Setting)((BoolSetting.Builder)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u81ea\u52a8\u6316\u77ff")).description("\u81ea\u52a8\u5bfb\u8def+\u6316\u6398")).defaultValue((Object)true)).build());
-        this.minY = this.sgGeneral.add((Setting)((IntSetting.Builder)((IntSetting.Builder)((IntSetting.Builder)new IntSetting.Builder().name("\u6700\u4f4eY\u5c42")).description("\u6b64\u5c42\u6570\u53ca\u4ee5\u4e0b\u7684\u65b9\u5757\u4e0d\u4f1a\u88ab\u5411\u4e0b\u6316\u6398")).defaultValue((Object)-64)).min(-64).max(320).build());
-        this.stuckTime = this.sgGeneral.add((Setting)((IntSetting.Builder)((IntSetting.Builder)((IntSetting.Builder)new IntSetting.Builder().name("\u5361\u4f4f\u5224\u5b9a")).description("\u591a\u4e45\u4e0d\u52a8\u7b97\u5361\u4f4f(tick)")).defaultValue((Object)60)).min(10).max(200).build());
-        this.abandonThreshold = this.sgGeneral.add((Setting)((IntSetting.Builder)((IntSetting.Builder)((IntSetting.Builder)new IntSetting.Builder().name("\u653e\u5f03\u9608\u503c")).description("\u4e0a\u4e00\u4e2a\u77ff\u6316\u5b8c\u540e\u8d85\u65f6\u672a\u5230\u8fbe\u5219\u9ed1\u540d\u53553\u5206\u949f(tick)")).defaultValue((Object)200)).min(20).max(1200).build());
-        this.safeDistance = this.sgGeneral.add((Setting)((IntSetting.Builder)((IntSetting.Builder)((IntSetting.Builder)new IntSetting.Builder().name("\u5b89\u5168\u8ddd\u79bb")).description("\u8eb2\u907f\u6d41\u4f53\u7684\u6700\u5c0f\u8ddd\u79bb(\u683c)")).defaultValue((Object)5)).min(2).max(15).build());
-        this.avoidCaves = this.sgGeneral.add((Setting)((BoolSetting.Builder)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u8eb2\u907f\u6d1e\u7a74")).description("\u96a7\u9053\u907f\u5f00\u5929\u7136\u7a7a\u6c14/\u6d1e\u7a74(\u4f1a\u964d\u4f4e\u5bfb\u8def\u6210\u529f\u7387)")).defaultValue((Object)false)).build());
-        this.filterDangerOres = this.sgGeneral.add((Setting)((BoolSetting.Builder)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u6392\u9664\u5371\u9669\u533a\u77ff\u7269")).description("\u4e0d\u6316\u6398\u5b89\u5168\u8ddd\u79bb\u5185\u9760\u8fd1\u6d41\u4f53/\u6d1e\u7a74\u7684\u77ff\u7269")).defaultValue((Object)true)).build());
-        this.chatInfo = this.sgGeneral.add((Setting)((BoolSetting.Builder)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u804a\u5929\u4fe1\u606f")).description("\u5728\u804a\u5929\u680f\u8f93\u51fa\u72b6\u6001")).defaultValue((Object)false)).build());
+        this.scanRange = this.sgGeneral.add(((DoubleSetting.Builder)((DoubleSetting.Builder)new DoubleSetting.Builder().name("\u626b\u63cf\u8303\u56f4")).description("\u641c\u7d22\u77ff\u77f3\u7684\u6700\u5927\u534a\u5f84(\u683c)")).defaultValue(64.0).min(8.0).max(256.0).sliderMax(128.0).build());
+        this.autoMine = this.sgGeneral.add(((BoolSetting.Builder)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u81ea\u52a8\u6316\u77ff")).description("\u81ea\u52a8\u5bfb\u8def+\u6316\u6398")).defaultValue(true)).build());
+        this.minY = this.sgGeneral.add(((IntSetting.Builder)((IntSetting.Builder)((IntSetting.Builder)new IntSetting.Builder().name("\u6700\u4f4eY\u5c42")).description("\u6b64\u5c42\u6570\u53ca\u4ee5\u4e0b\u7684\u65b9\u5757\u4e0d\u4f1a\u88ab\u5411\u4e0b\u6316\u6398")).defaultValue(-64)).min(-64).max(320).build());
+        this.stuckTime = this.sgGeneral.add(((IntSetting.Builder)((IntSetting.Builder)((IntSetting.Builder)new IntSetting.Builder().name("\u5361\u4f4f\u5224\u5b9a")).description("\u591a\u4e45\u4e0d\u52a8\u7b97\u5361\u4f4f(tick)")).defaultValue(60)).min(10).max(200).build());
+        this.abandonThreshold = this.sgGeneral.add(((IntSetting.Builder)((IntSetting.Builder)((IntSetting.Builder)new IntSetting.Builder().name("\u653e\u5f03\u9608\u503c")).description("\u4e0a\u4e00\u4e2a\u77ff\u6316\u5b8c\u540e\u8d85\u65f6\u672a\u5230\u8fbe\u5219\u9ed1\u540d\u53553\u5206\u949f(tick)")).defaultValue(200)).min(20).max(1200).build());
+        this.safeDistance = this.sgGeneral.add(((IntSetting.Builder)((IntSetting.Builder)((IntSetting.Builder)new IntSetting.Builder().name("\u5b89\u5168\u8ddd\u79bb")).description("\u8eb2\u907f\u6d41\u4f53\u7684\u6700\u5c0f\u8ddd\u79bb(\u683c)")).defaultValue(5)).min(2).max(15).build());
+        this.avoidCaves = this.sgGeneral.add(((BoolSetting.Builder)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u8eb2\u907f\u6d1e\u7a74")).description("\u96a7\u9053\u907f\u5f00\u5929\u7136\u7a7a\u6c14/\u6d1e\u7a74(\u4f1a\u964d\u4f4e\u5bfb\u8def\u6210\u529f\u7387)")).defaultValue(false)).build());
+        this.filterDangerOres = this.sgGeneral.add(((BoolSetting.Builder)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u6392\u9664\u5371\u9669\u533a\u77ff\u7269")).description("\u4e0d\u6316\u6398\u5b89\u5168\u8ddd\u79bb\u5185\u9760\u8fd1\u6d41\u4f53/\u6d1e\u7a74\u7684\u77ff\u7269")).defaultValue(true)).build());
+        this.chatInfo = this.sgGeneral.add(((BoolSetting.Builder)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u804a\u5929\u4fe1\u606f")).description("\u5728\u804a\u5929\u680f\u8f93\u51fa\u72b6\u6001")).defaultValue(false)).build());
         this.sgOres = this.settings.createGroup("\u77ff\u7269\u5217\u8868");
-        this.mineCoal = this.sgOres.add((Setting)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u7164\u77ff")).defaultValue((Object)true)).build());
-        this.mineIron = this.sgOres.add((Setting)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u94c1\u77ff")).defaultValue((Object)true)).build());
-        this.mineCopper = this.sgOres.add((Setting)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u94dc\u77ff")).defaultValue((Object)true)).build());
-        this.mineGold = this.sgOres.add((Setting)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u91d1\u77ff")).defaultValue((Object)true)).build());
-        this.mineRedstone = this.sgOres.add((Setting)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u7ea2\u77f3\u77ff")).defaultValue((Object)true)).build());
-        this.mineLapis = this.sgOres.add((Setting)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u9752\u91d1\u77f3")).defaultValue((Object)true)).build());
-        this.mineDiamond = this.sgOres.add((Setting)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u94bb\u77f3\u77ff")).defaultValue((Object)true)).build());
-        this.mineEmerald = this.sgOres.add((Setting)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u7eff\u5b9d\u77f3")).defaultValue((Object)true)).build());
-        this.mineNetherQuartz = this.sgOres.add((Setting)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u4e0b\u754c\u77f3\u82f1")).defaultValue((Object)true)).build());
-        this.mineNetherGold = this.sgOres.add((Setting)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u4e0b\u754c\u91d1\u77ff")).defaultValue((Object)true)).build());
-        this.mineAncientDebris = this.sgOres.add((Setting)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u8fdc\u53e4\u6b8b\u9ab8")).defaultValue((Object)true)).build());
+        this.mineCoal = this.sgOres.add(((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u7164\u77ff")).defaultValue(true)).build());
+        this.mineIron = this.sgOres.add(((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u94c1\u77ff")).defaultValue(true)).build());
+        this.mineCopper = this.sgOres.add(((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u94dc\u77ff")).defaultValue(true)).build());
+        this.mineGold = this.sgOres.add(((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u91d1\u77ff")).defaultValue(true)).build());
+        this.mineRedstone = this.sgOres.add(((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u7ea2\u77f3\u77ff")).defaultValue(true)).build());
+        this.mineLapis = this.sgOres.add(((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u9752\u91d1\u77f3")).defaultValue(true)).build());
+        this.mineDiamond = this.sgOres.add(((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u94bb\u77f3\u77ff")).defaultValue(true)).build());
+        this.mineEmerald = this.sgOres.add(((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u7eff\u5b9d\u77f3")).defaultValue(true)).build());
+        this.mineNetherQuartz = this.sgOres.add(((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u4e0b\u754c\u77f3\u82f1")).defaultValue(true)).build());
+        this.mineNetherGold = this.sgOres.add(((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u4e0b\u754c\u91d1\u77ff")).defaultValue(true)).build());
+        this.mineAncientDebris = this.sgOres.add(((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u8fdc\u53e4\u6b8b\u9ab8")).defaultValue(true)).build());
         this.sgRender = this.settings.createGroup("\u6e32\u67d3");
-        this.renderOres = this.sgRender.add((Setting)((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u6e32\u67d3\u77ff\u77f3")).defaultValue((Object)true)).build());
-        this.oreColor = this.sgRender.add((Setting)((ColorSetting.Builder)((ColorSetting.Builder)new ColorSetting.Builder().name("\u77ff\u77f3\u989c\u8272")).defaultValue(new SettingColor(255, 255, 0, 200)).visible(() -> this.renderOres.get())).build());
-        this.targetColor = this.sgRender.add((Setting)((ColorSetting.Builder)new ColorSetting.Builder().name("\u76ee\u6807\u989c\u8272")).defaultValue(new SettingColor(0, 255, 0, 200)).build());
-        this.pathColor = this.sgRender.add((Setting)((ColorSetting.Builder)new ColorSetting.Builder().name("\u8def\u5f84\u989c\u8272")).defaultValue(new SettingColor(100, 200, 255, 180)).build());
-        this.orePositions = new HashSet<class_2338>();
-        this.waypoints = new ArrayList<class_2338>();
+        this.renderOres = this.sgRender.add(((BoolSetting.Builder)((BoolSetting.Builder)new BoolSetting.Builder().name("\u6e32\u67d3\u77ff\u77f3")).defaultValue(true)).build());
+        this.oreColor = this.sgRender.add(((ColorSetting.Builder)((ColorSetting.Builder)new ColorSetting.Builder().name("\u77ff\u77f3\u989c\u8272")).defaultValue(new SettingColor(255, 255, 0, 200)).visible(() -> this.renderOres.get())).build());
+        this.targetColor = this.sgRender.add(((ColorSetting.Builder)new ColorSetting.Builder().name("\u76ee\u6807\u989c\u8272")).defaultValue(new SettingColor(0, 255, 0, 200)).build());
+        this.pathColor = this.sgRender.add(((ColorSetting.Builder)new ColorSetting.Builder().name("\u8def\u5f84\u989c\u8272")).defaultValue(new SettingColor(100, 200, 255, 180)).build());
+        this.orePositions = new HashSet<BlockPos>();
+        this.waypoints = new ArrayList<BlockPos>();
         this.phase = Phase.IDLE;
         this.scanCooldown = 60;
-        this.abandonBlacklist = new HashMap<class_2338, Long>();
-        this.dugPositions = new HashMap<class_2338, Long>();
+        this.abandonBlacklist = new HashMap<BlockPos, Long>();
+        this.dugPositions = new HashMap<BlockPos, Long>();
         this.autoSubscribe = true;
     }
 
@@ -151,8 +188,8 @@ extends Module {
         this.abandonBlacklist.clear();
         this.dugPositions.clear();
         this.lastOreMinedTime = 0L;
-        this.lastPos = this.mc.field_1724 != null ? this.mc.field_1724.method_24515() : null;
-        this.wasFlying = this.mc.field_1724 != null && this.mc.field_1724.method_31549().field_7479;
+        this.lastPos = this.mc.player != null ? this.mc.player.getBlockPos() : null;
+        this.wasFlying = this.mc.player != null && this.mc.player.getAbilities().flying;
         try {
             this.getCpuLoadMethod = ManagementFactory.getOperatingSystemMXBean().getClass().getMethod("getProcessCpuLoad", new Class[0]);
         }
@@ -166,8 +203,8 @@ extends Module {
         this.waypoints.clear();
         this.releaseControls();
         if (!this.wasFlying) {
-            this.mc.field_1724.method_31549().field_7479 = false;
-            this.mc.field_1724.method_31549().field_7478 = false;
+            this.mc.player.getAbilities().flying = false;
+            this.mc.player.getAbilities().allowFlying = false;
         }
     }
 
@@ -176,7 +213,7 @@ extends Module {
             return "\u6e05\u7406...";
         }
         if (this.phase == Phase.WALK_XZ && this.currentTarget != null) {
-            return "\u2192" + this.currentTarget.method_23854();
+            return "\u2192" + this.currentTarget.toShortString();
         }
         if (this.phase == Phase.FLY_UP) {
             return "\u98de\u884c\u4e0a\u5347...";
@@ -196,12 +233,12 @@ extends Module {
     @EventHandler
     private void onTick(TickEvent.Post event) {
         long elapsed;
-        class_2680 ts;
-        class_2338 nearest;
-        if (this.mc.field_1724 == null || this.mc.field_1687 == null) {
+        BlockState ts;
+        BlockPos nearest;
+        if (this.mc.player == null || this.mc.world == null) {
             return;
         }
-        if (this.mc.field_1724.method_29504() || this.mc.field_1724.method_6032() <= 0.0f) {
+        if (this.mc.player.isDead() || this.mc.player.getHealth() <= 0.0f) {
             this.toggle();
             return;
         }
@@ -216,11 +253,11 @@ extends Module {
             this.scan();
         }
         this.orePositions.removeIf(p -> {
-            class_2680 s = this.mc.field_1687.method_8320(p);
-            return !this.isTargetOre(s.method_26204()) || s.method_26215();
+            BlockState s = this.mc.world.getBlockState(p);
+            return !this.isTargetOre(s.getBlock()) || s.isAir();
         });
-        class_2338 class_23382 = nearest = this.orePositions.isEmpty() ? null : (class_2338)this.orePositions.stream().filter(p -> !this.abandonBlacklist.containsKey(p)).filter(p -> !this.dugPositions.containsKey(p)).min(Comparator.comparingDouble(p -> p.method_19770((class_2374)this.mc.field_1724.method_33571()))).orElse(null);
-        if (this.currentTarget != null && (!this.isTargetOre((ts = this.mc.field_1687.method_8320(this.currentTarget)).method_26204()) || ts.method_26215())) {
+        BlockPos nearestOre = nearest = this.orePositions.isEmpty() ? null : (BlockPos)this.orePositions.stream().filter(p -> !this.abandonBlacklist.containsKey(p)).filter(p -> !this.dugPositions.containsKey(p)).min(Comparator.comparingDouble(p -> p.getSquaredDistance((Position)this.mc.player.getEyePos()))).orElse(null);
+        if (this.currentTarget != null && (!this.isTargetOre((ts = this.mc.world.getBlockState(this.currentTarget)).getBlock()) || ts.isAir())) {
             this.lastOreMinedTime = System.currentTimeMillis();
             this.currentTarget = null;
             this.waypoints.clear();
@@ -251,16 +288,16 @@ extends Module {
                 this.currentTarget = null;
             } else if (((Boolean)this.autoMine.get()).booleanValue()) {
                 this.wpIndex = 0;
-                int pY = this.mc.field_1724.method_24515().method_10264();
-                if (Math.abs(this.currentTarget.method_10264() - pY) <= 1) {
+                int pY = this.mc.player.getBlockPos().getY();
+                if (Math.abs(this.currentTarget.getY() - pY) <= 1) {
                     this.phase = Phase.WALK_XZ;
-                } else if (this.currentTarget.method_10264() != pY) {
+                } else if (this.currentTarget.getY() != pY) {
                     this.phase = Phase.WALK_XZ;
                 }
             }
         }
-        class_2338 curPos = this.mc.field_1724.method_24515();
-        if (this.lastPos != null && curPos.equals((Object)this.lastPos)) {
+        BlockPos curPos = this.mc.player.getBlockPos();
+        if (this.lastPos != null && curPos.equals(this.lastPos)) {
             ++this.stuckTicks;
         } else {
             this.stuckTicks = 0;
@@ -288,7 +325,7 @@ extends Module {
         if (this.getCpuLoadMethod != null && ++this.cpuCheckTick >= 100) {
             this.cpuCheckTick = 0;
             try {
-                double cpuLoad = (Double)this.getCpuLoadMethod.invoke((Object)ManagementFactory.getOperatingSystemMXBean(), new Object[0]);
+                double cpuLoad = (Double)this.getCpuLoadMethod.invoke(ManagementFactory.getOperatingSystemMXBean(), new Object[0]);
                 if (cpuLoad > 0.8) {
                     if (this.currentTarget != null) {
                         this.blacklistWithNeighbors(this.currentTarget);
@@ -302,7 +339,7 @@ extends Module {
                     this.lastOreMinedTime = 0L;
                     this.breakingPos = null;
                     this.breakTicks = 0;
-                    this.mc.field_1761.method_2925();
+                    this.mc.interactionManager.cancelBlockBreaking();
                     this.perfPauseUntil = System.currentTimeMillis() + 5000L;
                     this.notify(String.format("CPU\u8fc7\u8f7d(%.0f%%),\u6682\u505c5\u79d2", cpuLoad * 100.0));
                     return;
@@ -323,7 +360,7 @@ extends Module {
             this.lastOreMinedTime = 0L;
             this.breakingPos = null;
             this.breakTicks = 0;
-            this.mc.field_1761.method_2925();
+            this.mc.interactionManager.cancelBlockBreaking();
             this.notify("\u65e0\u6cd5\u63a5\u8fd1,\u9ed1\u540d\u53553\u5206\u949f");
             return;
         }
@@ -356,18 +393,18 @@ extends Module {
 
     private void planWaypoints() {
         this.waypoints.clear();
-        class_2338 from = this.mc.field_1724.method_24515();
-        class_2338 to = this.currentTarget;
+        BlockPos from = this.mc.player.getBlockPos();
+        BlockPos to = this.currentTarget;
         to = this.findAirAdjacent(to);
-        this.tunnelY = from.method_10264();
-        class_2338 hTarget = new class_2338(to.method_10263(), this.tunnelY, to.method_10260());
-        List<class_2338> hPath = this.findHorizontalPath(from, hTarget);
+        this.tunnelY = from.getY();
+        BlockPos hTarget = new BlockPos(to.getX(), this.tunnelY, to.getZ());
+        List<BlockPos> hPath = this.findHorizontalPath(from, hTarget);
         this.waypoints.addAll(hPath);
-        this.waypoints.removeIf(wp -> this.isDangerZone((class_2338)wp, this.tunnelY));
-        if (to.method_10264() != this.tunnelY) {
+        this.waypoints.removeIf(wp -> this.isDangerZone((BlockPos)wp, this.tunnelY));
+        if (to.getY() != this.tunnelY) {
             this.waypoints.add(to);
         }
-        if (!this.waypoints.isEmpty() && this.waypoints.get(0).equals((Object)from)) {
+        if (!this.waypoints.isEmpty() && this.waypoints.get(0).equals(from)) {
             this.waypoints.remove(0);
         }
         if (this.waypoints.isEmpty()) {
@@ -377,8 +414,8 @@ extends Module {
         this.wpIndex = 0;
     }
 
-    private List<class_2338> findHorizontalPath(class_2338 from, class_2338 to) {
-        int y = from.method_10264();
+    private List<BlockPos> findHorizontalPath(BlockPos from, BlockPos to) {
+        int y = from.getY();
         int[][] dirs = new int[][]{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
         HashMap<Long, Float> gScore = new HashMap<Long, Float>();
         HashMap<Long, Long> parent = new HashMap<Long, Long>();
@@ -397,11 +434,11 @@ extends Module {
                 break;
             }
             ++expanded;
-            class_2338 cp = this.unkey(cur.key, y);
-            if (!cp.equals((Object)from) && this.isDangerZone(cp, y)) continue;
+            BlockPos cp = this.unkey(cur.key, y);
+            if (!cp.equals(from) && this.isDangerZone(cp, y)) continue;
             for (int[] d : dirs) {
                 float tentativeG;
-                class_2338 np = cp.method_10069(d[0], 0, d[1]);
+                BlockPos np = cp.add(d[0], 0, d[1]);
                 long nk = this.key(np);
                 if (this.isDangerZone(np, y) || !((tentativeG = gScore.getOrDefault(cur.key, Float.valueOf(Float.MAX_VALUE)).floatValue() + 1.0f) < gScore.getOrDefault(nk, Float.valueOf(Float.MAX_VALUE)).floatValue())) continue;
                 gScore.put(nk, Float.valueOf(tentativeG));
@@ -409,13 +446,13 @@ extends Module {
                 open.offer(new Node(nk, tentativeG, tentativeG + this.heuristic(np, to)));
             }
         }
-        ArrayList<class_2338> path = new ArrayList<class_2338>();
+        ArrayList<BlockPos> path = new ArrayList<BlockPos>();
         if (goalFound < 0L) {
             return this.fallbackPath(from, to, y);
         }
         long pKey = goalFound;
         while (pKey != startKey) {
-            class_2338 bp = this.unkey(pKey, y);
+            BlockPos bp = this.unkey(pKey, y);
             path.add(bp);
             pKey = parent.getOrDefault(pKey, startKey);
         }
@@ -424,11 +461,11 @@ extends Module {
         return this.compressPath(path, y);
     }
 
-    private List<class_2338> compressPath(List<class_2338> path, int y) {
+    private List<BlockPos> compressPath(List<BlockPos> path, int y) {
         if (path.size() <= 2) {
             return path;
         }
-        ArrayList<class_2338> result = new ArrayList<class_2338>();
+        ArrayList<BlockPos> result = new ArrayList<BlockPos>();
         result.add(path.get(0));
         int anchor = 0;
         for (int i = 2; i < path.size(); ++i) {
@@ -440,88 +477,88 @@ extends Module {
         return result;
     }
 
-    private boolean canWalkStraight(class_2338 a, class_2338 b, int y) {
-        int dx = Integer.signum(b.method_10263() - a.method_10263());
-        int dz = Integer.signum(b.method_10260() - a.method_10260());
+    private boolean canWalkStraight(BlockPos a, BlockPos b, int y) {
+        int dx = Integer.signum(b.getX() - a.getX());
+        int dz = Integer.signum(b.getZ() - a.getZ());
         if (dx != 0 && dz != 0) {
             return false;
         }
         if (dx == 0 && dz == 0) {
             return true;
         }
-        int steps = dx != 0 ? Math.abs(b.method_10263() - a.method_10263()) : Math.abs(b.method_10260() - a.method_10260());
+        int steps = dx != 0 ? Math.abs(b.getX() - a.getX()) : Math.abs(b.getZ() - a.getZ());
         for (int i = 1; i <= steps; ++i) {
-            if (!this.isDangerZone(a.method_10069(dx * i, 0, dz * i), y)) continue;
+            if (!this.isDangerZone(a.add(dx * i, 0, dz * i), y)) continue;
             return false;
         }
         return true;
     }
 
-    private List<class_2338> fallbackPath(class_2338 from, class_2338 to, int y) {
-        ArrayList<class_2338> path = new ArrayList<class_2338>();
+    private List<BlockPos> fallbackPath(BlockPos from, BlockPos to, int y) {
+        ArrayList<BlockPos> path = new ArrayList<BlockPos>();
         path.add(from);
-        int dx = Integer.signum(to.method_10263() - from.method_10263());
-        int dz = Integer.signum(to.method_10260() - from.method_10260());
-        int stepsX = Math.abs(to.method_10263() - from.method_10263());
-        int stepsZ = Math.abs(to.method_10260() - from.method_10260());
+        int dx = Integer.signum(to.getX() - from.getX());
+        int dz = Integer.signum(to.getZ() - from.getZ());
+        int stepsX = Math.abs(to.getX() - from.getX());
+        int stepsZ = Math.abs(to.getZ() - from.getZ());
         block0: for (int i = 1; i <= stepsX; ++i) {
-            class_2338 p = from.method_10069(dx * i, 0, 0);
+            BlockPos p = from.add(dx * i, 0, 0);
             if (!this.isDangerZone(p, y)) {
                 path.add(p);
                 continue;
             }
             for (int s = 1; s <= 4; ++s) {
-                class_2338 det = p.method_10069(0, 0, s);
+                BlockPos det = p.add(0, 0, s);
                 if (!this.isDangerZone(det, y)) {
                     path.add(det);
-                    path.add(det.method_10069(dx, 0, 0));
+                    path.add(det.add(dx, 0, 0));
                     continue block0;
                 }
-                det = p.method_10069(0, 0, -s);
+                det = p.add(0, 0, -s);
                 if (this.isDangerZone(det, y)) continue;
                 path.add(det);
-                path.add(det.method_10069(dx, 0, 0));
+                path.add(det.add(dx, 0, 0));
                 continue block0;
             }
         }
-        class_2338 afterX = new class_2338(to.method_10263(), y, from.method_10260());
+        BlockPos afterX = new BlockPos(to.getX(), y, from.getZ());
         block2: for (int i = 1; i <= stepsZ; ++i) {
-            class_2338 p = afterX.method_10069(0, 0, dz * i);
+            BlockPos p = afterX.add(0, 0, dz * i);
             if (!this.isDangerZone(p, y)) {
                 path.add(p);
                 continue;
             }
             for (int s = 1; s <= 4; ++s) {
-                class_2338 det = p.method_10069(s, 0, 0);
+                BlockPos det = p.add(s, 0, 0);
                 if (!this.isDangerZone(det, y)) {
                     path.add(det);
-                    path.add(det.method_10069(0, 0, dz));
+                    path.add(det.add(0, 0, dz));
                     continue block2;
                 }
-                det = p.method_10069(-s, 0, 0);
+                det = p.add(-s, 0, 0);
                 if (this.isDangerZone(det, y)) continue;
                 path.add(det);
-                path.add(det.method_10069(0, 0, dz));
+                path.add(det.add(0, 0, dz));
                 continue block2;
             }
         }
         return path;
     }
 
-    private boolean isDangerZone(class_2338 pos, int yLevel) {
+    private boolean isDangerZone(BlockPos pos, int yLevel) {
         int safeR = (Integer)this.safeDistance.get();
         int minY = (Integer)this.minY.get();
         boolean checkCaves = (Boolean)this.avoidCaves.get();
         for (int dx = -safeR; dx <= safeR; ++dx) {
             for (int dy = -1; dy <= 2; ++dy) {
                 for (int dz = -safeR; dz <= safeR; ++dz) {
-                    class_2338 check = pos.method_10069(dx, yLevel + dy, dz);
-                    if (check.method_10264() <= minY) continue;
-                    class_2680 s = this.mc.field_1687.method_8320(check);
+                    BlockPos check = pos.add(dx, yLevel + dy, dz);
+                    if (check.getY() <= minY) continue;
+                    BlockState s = this.mc.world.getBlockState(check);
                     if (this.isFluid(s)) {
                         return true;
                     }
-                    if (!checkCaves || !s.method_26215()) continue;
+                    if (!checkCaves || !s.isAir()) continue;
                     return true;
                 }
             }
@@ -529,35 +566,35 @@ extends Module {
         return false;
     }
 
-    private long key(class_2338 p) {
-        return (long)p.method_10263() << 32 | (long)p.method_10260() & 0xFFFFFFFFL;
+    private long key(BlockPos p) {
+        return (long)p.getX() << 32 | (long)p.getZ() & 0xFFFFFFFFL;
     }
 
-    private class_2338 unkey(long k, int y) {
-        return new class_2338((int)(k >> 32), y, (int)k);
+    private BlockPos unkey(long k, int y) {
+        return new BlockPos((int)(k >> 32), y, (int)k);
     }
 
-    private float heuristic(class_2338 a, class_2338 b) {
-        return Math.abs(a.method_10263() - b.method_10263()) + Math.abs(a.method_10260() - b.method_10260());
+    private float heuristic(BlockPos a, BlockPos b) {
+        return Math.abs(a.getX() - b.getX()) + Math.abs(a.getZ() - b.getZ());
     }
 
-    private class_2338 findAirAdjacent(class_2338 ore) {
-        class_2338 best = ore;
+    private BlockPos findAirAdjacent(BlockPos ore) {
+        BlockPos best = ore;
         double bestDist = Double.MAX_VALUE;
-        class_243 eye = this.mc.field_1724 != null ? this.mc.field_1724.method_33571() : class_243.field_1353;
-        for (class_2350 d : class_2350.values()) {
+        Vec3d eye = this.mc.player != null ? this.mc.player.getEyePos() : Vec3d.ZERO;
+        for (Direction d : Direction.values()) {
             double dist;
-            class_2338 adj = ore.method_10093(d);
-            if (!this.mc.field_1687.method_8320(adj).method_26215() && !this.isReplaceable(this.mc.field_1687.method_8320(adj)) || !((dist = adj.method_19770((class_2374)eye)) < bestDist)) continue;
+            BlockPos adj = ore.offset(d);
+            if (!this.mc.world.getBlockState(adj).isAir() && !this.isReplaceable(this.mc.world.getBlockState(adj)) || !((dist = adj.getSquaredDistance((Position)eye)) < bestDist)) continue;
             bestDist = dist;
             best = adj;
         }
         if (bestDist == Double.MAX_VALUE) {
-            for (class_2350 d : class_2350.values()) {
-                double dist = ore.method_10093(d).method_19770((class_2374)eye);
+            for (Direction d : Direction.values()) {
+                double dist = ore.offset(d).getSquaredDistance((Position)eye);
                 if (!(dist < bestDist)) continue;
                 bestDist = dist;
-                best = ore.method_10093(d);
+                best = ore.offset(d);
             }
         }
         return best;
@@ -568,8 +605,8 @@ extends Module {
         boolean zSeg;
         boolean atX;
         if (this.wpIndex >= this.waypoints.size()) {
-            int pY = this.mc.field_1724.method_24515().method_10264();
-            int tY = this.currentTarget.method_10264();
+            int pY = this.mc.player.getBlockPos().getY();
+            int tY = this.currentTarget.getY();
             if (tY > pY + 1) {
                 this.phase = Phase.FLY_UP;
                 this.enableFlight();
@@ -582,13 +619,13 @@ extends Module {
             this.phase = Phase.MINE_ORE;
             return;
         }
-        class_2338 wp = this.waypoints.get(this.wpIndex);
-        class_2338 feet = this.mc.field_1724.method_24515();
-        boolean atZ = feet.method_10260() == wp.method_10260();
-        boolean bl = atX = feet.method_10263() == wp.method_10263();
+        BlockPos wp = this.waypoints.get(this.wpIndex);
+        BlockPos feet = this.mc.player.getBlockPos();
+        boolean atZ = feet.getZ() == wp.getZ();
+        boolean bl = atX = feet.getX() == wp.getX();
         if (atX && atZ) {
             ++this.wpIndex;
-            if (this.wpIndex < this.waypoints.size() && this.isDangerZone(this.waypoints.get(this.wpIndex), feet.method_10264())) {
+            if (this.wpIndex < this.waypoints.size() && this.isDangerZone(this.waypoints.get(this.wpIndex), feet.getY())) {
                 this.planWaypoints();
                 if (this.waypoints.isEmpty() || this.wpIndex >= this.waypoints.size()) {
                     this.blacklistAndNext("\u4e0b\u4e00\u8282\u70b9\u4e0d\u5b89\u5168");
@@ -598,31 +635,31 @@ extends Module {
             }
             return;
         }
-        boolean xSeg = wp.method_10263() != feet.method_10263() && wp.method_10260() == feet.method_10260();
-        boolean bl2 = zSeg = wp.method_10260() != feet.method_10260() && wp.method_10263() == feet.method_10263();
+        boolean xSeg = wp.getX() != feet.getX() && wp.getZ() == feet.getZ();
+        boolean bl2 = zSeg = wp.getZ() != feet.getZ() && wp.getX() == feet.getX();
         if (!xSeg && !zSeg) {
             ++this.wpIndex;
             return;
         }
-        int stepX = xSeg ? Integer.signum(wp.method_10263() - feet.method_10263()) : 0;
-        int stepZ = zSeg ? Integer.signum(wp.method_10260() - feet.method_10260()) : 0;
-        class_243 faceTarget = new class_243((double)(feet.method_10263() + stepX) + 0.5, (double)feet.method_10264() + 0.5, (double)(feet.method_10260() + stepZ) + 0.5);
+        int stepX = xSeg ? Integer.signum(wp.getX() - feet.getX()) : 0;
+        int stepZ = zSeg ? Integer.signum(wp.getZ() - feet.getZ()) : 0;
+        Vec3d faceTarget = new Vec3d((double)(feet.getX() + stepX) + 0.5, (double)feet.getY() + 0.5, (double)(feet.getZ() + stepZ) + 0.5);
         this.face(faceTarget);
-        class_2338 frontLow = feet.method_10069(stepX, 0, stepZ);
-        class_2338 frontHigh = frontLow.method_10084();
-        if (frontLow.method_10264() <= (Integer)this.minY.get() || frontHigh.method_10264() <= (Integer)this.minY.get()) {
+        BlockPos frontLow = feet.add(stepX, 0, stepZ);
+        BlockPos frontHigh = frontLow.up();
+        if (frontLow.getY() <= (Integer)this.minY.get() || frontHigh.getY() <= (Integer)this.minY.get()) {
             this.blacklistAndNext("\u5230\u8fbe\u6700\u4f4eY\u5c42\u9650\u5236");
             return;
         }
-        ArrayList<class_2338> toDig = new ArrayList<class_2338>();
-        if (this.isBlocking(this.mc.field_1687.method_8320(frontLow))) {
+        ArrayList<BlockPos> toDig = new ArrayList<BlockPos>();
+        if (this.isBlocking(this.mc.world.getBlockState(frontLow))) {
             toDig.add(frontLow);
         }
-        if (this.isBlocking(this.mc.field_1687.method_8320(frontHigh))) {
+        if (this.isBlocking(this.mc.world.getBlockState(frontHigh))) {
             toDig.add(frontHigh);
         }
-        if (frontDanger = this.isDangerZone(frontLow, feet.method_10264())) {
-            if (this.isBlocking(this.mc.field_1687.method_8320(frontLow))) {
+        if (frontDanger = this.isDangerZone(frontLow, feet.getY())) {
+            if (this.isBlocking(this.mc.world.getBlockState(frontLow))) {
                 this.blacklistBlock(frontLow);
             }
             this.planWaypoints();
@@ -631,7 +668,7 @@ extends Module {
                 return;
             }
             this.wpIndex = 0;
-            this.mc.field_1690.field_1894.method_23481(false);
+            this.mc.options.forwardKey.setPressed(false);
             return;
         }
         if (this.breakingPos != null) {
@@ -639,76 +676,76 @@ extends Module {
             toDig.add(this.breakingPos);
         }
         if (!toDig.isEmpty()) {
-            class_2338 dig = (class_2338)toDig.get(0);
+            BlockPos dig = (BlockPos)toDig.get(0);
             if (toDig.size() == 2) {
                 double dHigh;
-                double dLow = this.mc.field_1724.method_33571().method_1025(class_243.method_24953((class_2382)frontLow));
-                dig = dLow < (dHigh = this.mc.field_1724.method_33571().method_1025(class_243.method_24953((class_2382)frontHigh))) ? frontLow : frontHigh;
+                double dLow = this.mc.player.getEyePos().squaredDistanceTo(Vec3d.ofCenter((Vec3i)frontLow));
+                dig = dLow < (dHigh = this.mc.player.getEyePos().squaredDistanceTo(Vec3d.ofCenter((Vec3i)frontHigh))) ? frontLow : frontHigh;
             }
             this.doDigBlock(dig);
         } else {
             this.breakingPos = null;
             this.breakTicks = 0;
-            this.mc.field_1761.method_2925();
-            this.mc.field_1690.field_1894.method_23481(true);
+            this.mc.interactionManager.cancelBlockBreaking();
+            this.mc.options.forwardKey.setPressed(true);
         }
     }
 
     private void flyUpPhase() {
-        class_2338 feet = this.mc.field_1724.method_24515();
-        int tY = this.currentTarget.method_10264();
-        if (feet.method_10264() >= tY - 1) {
+        BlockPos feet = this.mc.player.getBlockPos();
+        int tY = this.currentTarget.getY();
+        if (feet.getY() >= tY - 1) {
             this.disableFlight();
             this.phase = Phase.MINE_ORE;
             return;
         }
-        for (int dy = 1; dy <= tY - feet.method_10264() + 1; ++dy) {
-            class_2338 check = new class_2338(feet.method_10263(), feet.method_10264() + dy, feet.method_10260());
-            if (check.method_10264() <= (Integer)this.minY.get()) {
+        for (int dy = 1; dy <= tY - feet.getY() + 1; ++dy) {
+            BlockPos check = new BlockPos(feet.getX(), feet.getY() + dy, feet.getZ());
+            if (check.getY() <= (Integer)this.minY.get()) {
                 this.blacklistAndNext("\u5230\u8fbe\u6700\u4f4eY\u5c42");
                 return;
             }
-            if (!this.isBlocking(this.mc.field_1687.method_8320(check))) continue;
-            this.face(class_243.method_24953((class_2382)check));
+            if (!this.isBlocking(this.mc.world.getBlockState(check))) continue;
+            this.face(Vec3d.ofCenter((Vec3i)check));
             this.doDigBlock(check);
             this.enableFlight();
             return;
         }
         this.enableFlight();
-        class_243 vel = this.mc.field_1724.method_18798();
-        this.mc.field_1724.method_18800(vel.field_1352, 0.5, vel.field_1350);
+        Vec3d vel = this.mc.player.getVelocity();
+        this.mc.player.setVelocity(vel.x, 0.5, vel.z);
     }
 
     private void digDownPhase() {
-        class_2338 feet = this.mc.field_1724.method_24515();
-        int tY = this.currentTarget.method_10264();
-        if (feet.method_10264() <= tY + 1) {
+        BlockPos feet = this.mc.player.getBlockPos();
+        int tY = this.currentTarget.getY();
+        if (feet.getY() <= tY + 1) {
             this.phase = Phase.MINE_ORE;
             return;
         }
-        for (int dy = 1; dy <= feet.method_10264() - tY; ++dy) {
-            class_2338 check = new class_2338(feet.method_10263(), feet.method_10264() - dy, feet.method_10260());
-            if (check.method_10264() <= (Integer)this.minY.get()) {
+        for (int dy = 1; dy <= feet.getY() - tY; ++dy) {
+            BlockPos check = new BlockPos(feet.getX(), feet.getY() - dy, feet.getZ());
+            if (check.getY() <= (Integer)this.minY.get()) {
                 this.blacklistAndNext("\u5230\u8fbe\u6700\u4f4eY\u5c42");
                 return;
             }
-            if (!this.isBlocking(this.mc.field_1687.method_8320(check))) continue;
-            this.face(class_243.method_24953((class_2382)check));
+            if (!this.isBlocking(this.mc.world.getBlockState(check))) continue;
+            this.face(Vec3d.ofCenter((Vec3i)check));
             this.doDigBlock(check);
             return;
         }
-        this.mc.field_1690.field_1894.method_23481(true);
-        this.mc.field_1690.field_1832.method_23481(true);
+        this.mc.options.forwardKey.setPressed(true);
+        this.mc.options.sneakKey.setPressed(true);
     }
 
     private void mineOrePhase() {
-        class_2338 ore = this.currentTarget;
+        BlockPos ore = this.currentTarget;
         if (ore == null) {
             this.phase = Phase.IDLE;
             return;
         }
-        class_2680 s = this.mc.field_1687.method_8320(ore);
-        if (!this.isTargetOre(s.method_26204()) || s.method_26215()) {
+        BlockState s = this.mc.world.getBlockState(ore);
+        if (!this.isTargetOre(s.getBlock()) || s.isAir()) {
             this.lastOreMinedTime = System.currentTimeMillis();
             this.currentTarget = null;
             this.waypoints.clear();
@@ -716,30 +753,30 @@ extends Module {
             this.targetLockTime = 0;
             this.breakingPos = null;
             this.breakTicks = 0;
-            this.mc.field_1761.method_2925();
+            this.mc.interactionManager.cancelBlockBreaking();
             this.phase = Phase.RETURN_TO_TUNNEL;
             return;
         }
-        if (this.breakingPos != null && this.breakingPos.equals((Object)ore)) {
+        if (this.breakingPos != null && this.breakingPos.equals(ore)) {
             if (this.breakTicks++ > 200) {
                 this.blacklistBlock(ore);
                 this.breakingPos = null;
                 this.breakTicks = 0;
-                this.mc.field_1761.method_2925();
+                this.mc.interactionManager.cancelBlockBreaking();
                 this.planWaypoints();
                 return;
             }
-            this.mc.field_1761.method_2902(ore, this.bestFace(ore));
-            this.face(class_243.method_24953((class_2382)ore));
+            this.mc.interactionManager.updateBlockBreakingProgress(ore, this.bestFace(ore));
+            this.face(Vec3d.ofCenter((Vec3i)ore));
             return;
         }
-        this.face(class_243.method_24953((class_2382)ore));
+        this.face(Vec3d.ofCenter((Vec3i)ore));
         this.switchToPick();
         this.doDigBlock(ore);
     }
 
     private void returnToTunnelPhase() {
-        int pY = this.mc.field_1724.method_24515().method_10264();
+        int pY = this.mc.player.getBlockPos().getY();
         if (Math.abs(pY - this.tunnelY) <= 1) {
             this.disableFlight();
             this.phase = Phase.IDLE;
@@ -747,33 +784,33 @@ extends Module {
         }
         if (pY < this.tunnelY) {
             this.enableFlight();
-            class_243 vel = this.mc.field_1724.method_18798();
-            this.mc.field_1724.method_18800(vel.field_1352, 0.5, vel.field_1350);
+            Vec3d vel = this.mc.player.getVelocity();
+            this.mc.player.setVelocity(vel.x, 0.5, vel.z);
         } else {
             this.disableFlight();
-            class_2338 below = this.mc.field_1724.method_24515().method_10074();
-            if (this.isBlocking(this.mc.field_1687.method_8320(below))) {
-                this.face(class_243.method_24953((class_2382)below));
+            BlockPos below = this.mc.player.getBlockPos().down();
+            if (this.isBlocking(this.mc.world.getBlockState(below))) {
+                this.face(Vec3d.ofCenter((Vec3i)below));
                 this.doDigBlock(below);
             } else {
-                this.mc.field_1690.field_1894.method_23481(true);
+                this.mc.options.forwardKey.setPressed(true);
             }
         }
     }
 
-    private void doDigBlock(class_2338 pos) {
-        class_2680 s = this.mc.field_1687.method_8320(pos);
-        if (s.method_26215() || this.isReplaceable(s) || this.isUnbreakable(s.method_26204()) || this.isFluid(s)) {
+    private void doDigBlock(BlockPos pos) {
+        BlockState s = this.mc.world.getBlockState(pos);
+        if (s.isAir() || this.isReplaceable(s) || this.isUnbreakable(s.getBlock()) || this.isFluid(s)) {
             this.breakingPos = null;
             this.breakTicks = 0;
-            this.mc.field_1761.method_2925();
+            this.mc.interactionManager.cancelBlockBreaking();
             return;
         }
-        if (this.isDangerZone(pos, pos.method_10264())) {
+        if (this.isDangerZone(pos, pos.getY())) {
             this.blacklistBlock(pos);
             this.breakingPos = null;
             this.breakTicks = 0;
-            this.mc.field_1761.method_2925();
+            this.mc.interactionManager.cancelBlockBreaking();
             this.waypoints.clear();
             this.planWaypoints();
             if (this.waypoints.size() > 0) {
@@ -781,20 +818,20 @@ extends Module {
             }
             return;
         }
-        if (this.breakingPos != null && !this.breakingPos.equals((Object)pos)) {
+        if (this.breakingPos != null && !this.breakingPos.equals(pos)) {
             this.breakTicks = 0;
-            this.mc.field_1761.method_2925();
+            this.mc.interactionManager.cancelBlockBreaking();
         }
         this.breakingPos = pos;
         this.dugPositions.put(pos, System.currentTimeMillis() + 60000L);
-        this.face(class_243.method_24953((class_2382)pos));
+        this.face(Vec3d.ofCenter((Vec3i)pos));
         this.switchToPick();
-        class_2350 bestSide = this.bestFace(pos);
+        Direction bestSide = this.bestFace(pos);
         if (this.breakTicks > 300) {
             this.blacklistBlock(pos);
             this.breakingPos = null;
             this.breakTicks = 0;
-            this.mc.field_1761.method_2925();
+            this.mc.interactionManager.cancelBlockBreaking();
             this.waypoints.clear();
             this.wpIndex = 0;
             this.planWaypoints();
@@ -804,23 +841,23 @@ extends Module {
             return;
         }
         if (this.breakTicks == 0) {
-            this.mc.field_1761.method_2910(pos, bestSide);
+            this.mc.interactionManager.attackBlock(pos, bestSide);
         }
-        this.mc.field_1761.method_2902(pos, bestSide);
-        this.mc.field_1724.method_6104(class_1268.field_5808);
+        this.mc.interactionManager.updateBlockBreakingProgress(pos, bestSide);
+        this.mc.player.swingHand(Hand.MAIN_HAND);
         ++this.breakTicks;
     }
 
     private void doClearing() {
-        class_2338 pp = this.mc.field_1724.method_24515();
-        ArrayList<class_2338> nearby = new ArrayList<class_2338>();
+        BlockPos pp = this.mc.player.getBlockPos();
+        ArrayList<BlockPos> nearby = new ArrayList<BlockPos>();
         int minYLev = (Integer)this.minY.get();
         for (int dx = -1; dx <= 1; ++dx) {
             for (int dy = -1; dy <= 2; ++dy) {
                 for (int dz = -1; dz <= 1; ++dz) {
-                    class_2680 s;
-                    class_2338 pos;
-                    if (dx == 0 && dy == 0 && dz == 0 || (pos = pp.method_10069(dx, dy, dz)).method_10264() <= minYLev || (s = this.mc.field_1687.method_8320(pos)).method_26215() || !(s.method_26204().method_36555() >= 0.0f) || this.isUnbreakable(s.method_26204()) || this.isFluid(s)) continue;
+                    BlockState s;
+                    BlockPos pos;
+                    if (dx == 0 && dy == 0 && dz == 0 || (pos = pp.add(dx, dy, dz)).getY() <= minYLev || (s = this.mc.world.getBlockState(pos)).isAir() || !(s.getBlock().getHardness() >= 0.0f) || this.isUnbreakable(s.getBlock()) || this.isFluid(s)) continue;
                     nearby.add(pos);
                 }
             }
@@ -830,49 +867,49 @@ extends Module {
             this.stuckTicks = 0;
             return;
         }
-        nearby.sort(Comparator.comparingDouble(p -> p.method_19770((class_2374)this.mc.field_1724.method_33571())));
-        class_2338 dig = (class_2338)nearby.get(0);
-        this.face(class_243.method_24953((class_2382)dig));
+        nearby.sort(Comparator.comparingDouble(p -> p.getSquaredDistance((Position)this.mc.player.getEyePos())));
+        BlockPos dig = (BlockPos)nearby.get(0);
+        this.face(Vec3d.ofCenter((Vec3i)dig));
         this.switchToPick();
-        this.mc.field_1761.method_2902(dig, this.bestFace(dig));
-        this.mc.field_1724.method_6104(class_1268.field_5808);
-        if (this.mc.field_1687.method_8320(dig).method_26215()) {
+        this.mc.interactionManager.updateBlockBreakingProgress(dig, this.bestFace(dig));
+        this.mc.player.swingHand(Hand.MAIN_HAND);
+        if (this.mc.world.getBlockState(dig).isAir()) {
             this.isStuck = false;
             this.stuckTicks = 0;
         }
     }
 
     private void scan() {
-        class_638 world = this.mc.field_1687;
-        class_2338 pp = this.mc.field_1724.method_24515();
+        ClientWorld world = this.mc.world;
+        BlockPos pp = this.mc.player.getBlockPos();
         int r = (int)Math.ceil((Double)this.scanRange.get());
         int rSq = r * r;
         int minYLev = (Integer)this.minY.get();
         boolean filterDanger = (Boolean)this.filterDangerOres.get();
-        class_2338.class_2339 m = new class_2338.class_2339();
+        BlockPos.Mutable m = new BlockPos.Mutable();
         for (int dx = -r; dx <= r; ++dx) {
             int dx2 = dx * dx;
             for (int dy = -r; dy <= r; ++dy) {
                 int dxy2 = dx2 + dy * dy;
                 if (dxy2 > rSq) continue;
                 for (int dz = -r; dz <= r; ++dz) {
-                    class_2680 s;
+                    BlockState s;
                     if (dxy2 + dz * dz > rSq) continue;
-                    m.method_10103(pp.method_10263() + dx, pp.method_10264() + dy, pp.method_10260() + dz);
-                    if (m.method_10264() <= minYLev || this.abandonBlacklist.containsKey(m) || this.dugPositions.containsKey(m) || !this.isTargetOre((s = world.method_8320((class_2338)m)).method_26204()) || s.method_26214((class_1922)world, (class_2338)m) < 0.0f || filterDanger && this.isOreNearFluid((class_2338)m)) continue;
-                    this.orePositions.add(m.method_10062());
+                    m.set(pp.getX() + dx, pp.getY() + dy, pp.getZ() + dz);
+                    if (m.getY() <= minYLev || this.abandonBlacklist.containsKey(m) || this.dugPositions.containsKey(m) || !this.isTargetOre((s = world.getBlockState((BlockPos)m)).getBlock()) || s.getHardness((BlockView)world, (BlockPos)m) < 0.0f || filterDanger && this.isOreNearFluid((BlockPos)m)) continue;
+                    this.orePositions.add(m.toImmutable());
                 }
             }
         }
     }
 
-    private boolean isOreNearFluid(class_2338 ore) {
+    private boolean isOreNearFluid(BlockPos ore) {
         int safeR = (Integer)this.safeDistance.get();
         for (int dx = -safeR; dx <= safeR; ++dx) {
             for (int dy = -safeR; dy <= safeR; ++dy) {
                 for (int dz = -safeR; dz <= safeR; ++dz) {
-                    class_2338 check;
-                    if (dx == 0 && dy == 0 && dz == 0 || !this.isFluid(this.mc.field_1687.method_8320(check = ore.method_10069(dx, dy, dz)))) continue;
+                    BlockPos check;
+                    if (dx == 0 && dy == 0 && dz == 0 || !this.isFluid(this.mc.world.getBlockState(check = ore.add(dx, dy, dz)))) continue;
                     return true;
                 }
             }
@@ -880,65 +917,65 @@ extends Module {
         return false;
     }
 
-    private boolean isTargetOre(class_2248 b) {
-        if (b == class_2246.field_10418 || b == class_2246.field_29219) {
+    private boolean isTargetOre(Block b) {
+        if (b == Blocks.COAL_ORE || b == Blocks.DEEPSLATE_COAL_ORE) {
             return (Boolean)this.mineCoal.get();
         }
-        if (b == class_2246.field_10212 || b == class_2246.field_29027) {
+        if (b == Blocks.IRON_ORE || b == Blocks.DEEPSLATE_IRON_ORE) {
             return (Boolean)this.mineIron.get();
         }
-        if (b == class_2246.field_27120 || b == class_2246.field_29221) {
+        if (b == Blocks.COPPER_ORE || b == Blocks.DEEPSLATE_COPPER_ORE) {
             return (Boolean)this.mineCopper.get();
         }
-        if (b == class_2246.field_10571 || b == class_2246.field_29026) {
+        if (b == Blocks.GOLD_ORE || b == Blocks.DEEPSLATE_GOLD_ORE) {
             return (Boolean)this.mineGold.get();
         }
-        if (b == class_2246.field_10080 || b == class_2246.field_29030) {
+        if (b == Blocks.REDSTONE_ORE || b == Blocks.DEEPSLATE_REDSTONE_ORE) {
             return (Boolean)this.mineRedstone.get();
         }
-        if (b == class_2246.field_10090 || b == class_2246.field_29028) {
+        if (b == Blocks.LAPIS_ORE || b == Blocks.DEEPSLATE_LAPIS_ORE) {
             return (Boolean)this.mineLapis.get();
         }
-        if (b == class_2246.field_10442 || b == class_2246.field_29029) {
+        if (b == Blocks.DIAMOND_ORE || b == Blocks.DEEPSLATE_DIAMOND_ORE) {
             return (Boolean)this.mineDiamond.get();
         }
-        if (b == class_2246.field_10013 || b == class_2246.field_29220) {
+        if (b == Blocks.EMERALD_ORE || b == Blocks.DEEPSLATE_EMERALD_ORE) {
             return (Boolean)this.mineEmerald.get();
         }
-        if (b == class_2246.field_10213) {
+        if (b == Blocks.NETHER_QUARTZ_ORE) {
             return (Boolean)this.mineNetherQuartz.get();
         }
-        if (b == class_2246.field_23077) {
+        if (b == Blocks.NETHER_GOLD_ORE) {
             return (Boolean)this.mineNetherGold.get();
         }
-        if (b == class_2246.field_22109) {
+        if (b == Blocks.ANCIENT_DEBRIS) {
             return (Boolean)this.mineAncientDebris.get();
         }
         return false;
     }
 
-    private boolean isUnbreakable(class_2248 b) {
-        return b == class_2246.field_9987 || b == class_2246.field_10499 || b == class_2246.field_10525 || b == class_2246.field_10395 || b == class_2246.field_10263 || b == class_2246.field_10465 || b == class_2246.field_16540 || b == class_2246.field_10369;
+    private boolean isUnbreakable(Block b) {
+        return b == Blocks.BEDROCK || b == Blocks.BARRIER || b == Blocks.COMMAND_BLOCK || b == Blocks.CHAIN_COMMAND_BLOCK || b == Blocks.REPEATING_COMMAND_BLOCK || b == Blocks.STRUCTURE_BLOCK || b == Blocks.JIGSAW || b == Blocks.STRUCTURE_VOID;
     }
 
-    private void face(class_243 t) {
-        class_243 e = this.mc.field_1724.method_33571();
-        double dx = t.field_1352 - e.field_1352;
-        double dy = t.field_1351 - e.field_1351;
-        double dz = t.field_1350 - e.field_1350;
+    private void face(Vec3d t) {
+        Vec3d e = this.mc.player.getEyePos();
+        double dx = t.x - e.x;
+        double dy = t.y - e.y;
+        double dz = t.z - e.z;
         double h = Math.sqrt(dx * dx + dz * dz);
-        this.mc.field_1724.method_36456((float)Math.toDegrees(Math.atan2(-dx, dz)));
-        this.mc.field_1724.method_36457((float)(-Math.toDegrees(Math.atan2(dy, h))));
+        this.mc.player.setYaw((float)Math.toDegrees(Math.atan2(-dx, dz)));
+        this.mc.player.setPitch((float)(-Math.toDegrees(Math.atan2(dy, h))));
     }
 
-    private class_2350 bestFace(class_2338 pos) {
-        class_243 eye = this.mc.field_1724.method_33571();
-        class_243 c = class_243.method_24953((class_2382)pos);
-        class_243 d = c.method_1020(eye).method_1029();
+    private Direction bestFace(BlockPos pos) {
+        Vec3d eye = this.mc.player.getEyePos();
+        Vec3d c = Vec3d.ofCenter((Vec3i)pos);
+        Vec3d d = c.subtract(eye).normalize();
         double best = -2.0;
-        class_2350 r = class_2350.field_11036;
-        for (class_2350 dir : class_2350.values()) {
-            double dot = d.method_1026(class_243.method_24954((class_2382)dir.method_62675()));
+        Direction r = Direction.UP;
+        for (Direction dir : Direction.values()) {
+            double dot = d.dotProduct(Vec3d.of((Vec3i)dir.getVector()));
             if (!(dot > best)) continue;
             best = dot;
             r = dir;
@@ -946,19 +983,19 @@ extends Module {
         return r;
     }
 
-    private boolean isBlocking(class_2680 s) {
-        if (s.method_26215() || s.method_45474() || this.isFluid(s)) {
+    private boolean isBlocking(BlockState s) {
+        if (s.isAir() || s.isReplaceable() || this.isFluid(s)) {
             return false;
         }
-        return s.method_51367() || s.method_26204().method_36555() >= 0.0f;
+        return s.isSolid() || s.getBlock().getHardness() >= 0.0f;
     }
 
-    private boolean isReplaceable(class_2680 s) {
-        return s.method_45474() || s.method_26204() instanceof class_2521 || s.method_26204() instanceof class_2356;
+    private boolean isReplaceable(BlockState s) {
+        return s.isReplaceable() || s.getBlock() instanceof TallFlowerBlock || s.getBlock() instanceof FlowerBlock;
     }
 
-    private boolean isFluid(class_2680 s) {
-        return s.method_26227().method_15767(class_3486.field_15518) || s.method_26227().method_15767(class_3486.field_15517);
+    private boolean isFluid(BlockState s) {
+        return s.getFluidState().isIn(FluidTags.LAVA) || s.getFluidState().isIn(FluidTags.WATER);
     }
 
     private void blacklistAndNext(String reason) {
@@ -979,17 +1016,17 @@ extends Module {
         }
     }
 
-    private void blacklistBlock(class_2338 pos) {
+    private void blacklistBlock(BlockPos pos) {
         this.abandonBlacklist.put(pos, System.currentTimeMillis() + 180000L);
     }
 
-    private void blacklistWithNeighbors(class_2338 center) {
+    private void blacklistWithNeighbors(BlockPos center) {
         long expire = System.currentTimeMillis() + 180000L;
         for (int dx = -2; dx <= 2; ++dx) {
             for (int dy = -2; dy <= 2; ++dy) {
                 for (int dz = -2; dz <= 2; ++dz) {
-                    class_2338 pos;
-                    if (Math.abs(dx) + Math.abs(dy) + Math.abs(dz) > 2 || !this.orePositions.contains(pos = center.method_10069(dx, dy, dz))) continue;
+                    BlockPos pos;
+                    if (Math.abs(dx) + Math.abs(dy) + Math.abs(dz) > 2 || !this.orePositions.contains(pos = center.add(dx, dy, dz))) continue;
                     this.abandonBlacklist.put(pos, expire);
                 }
             }
@@ -997,14 +1034,14 @@ extends Module {
     }
 
     private void enableFlight() {
-        this.mc.field_1724.method_31549().field_7479 = true;
-        this.mc.field_1724.method_31549().field_7478 = true;
+        this.mc.player.getAbilities().flying = true;
+        this.mc.player.getAbilities().allowFlying = true;
     }
 
     private void disableFlight() {
         if (!this.wasFlying) {
-            this.mc.field_1724.method_31549().field_7479 = false;
-            this.mc.field_1724.method_31549().field_7478 = false;
+            this.mc.player.getAbilities().flying = false;
+            this.mc.player.getAbilities().allowFlying = false;
         }
     }
 
@@ -1015,36 +1052,36 @@ extends Module {
     }
 
     private void notify(String msg) {
-        if (this.mc.field_1724 != null) {
-            this.mc.field_1724.method_7353((class_2561)class_2561.method_43470((String)("\u00a78[\u00a76\u77ff\u7269\u8ffd\u8e2a\u00a78] \u00a7f" + msg)), true);
+        if (this.mc.player != null) {
+            this.mc.player.sendMessage((Text)Text.literal((String)("\u00a78[\u00a76\u77ff\u7269\u8ffd\u8e2a\u00a78] \u00a7f" + msg)), true);
         }
     }
 
     private void releaseControls() {
-        this.mc.field_1690.field_1894.method_23481(false);
-        this.mc.field_1690.field_1881.method_23481(false);
-        this.mc.field_1690.field_1913.method_23481(false);
-        this.mc.field_1690.field_1849.method_23481(false);
-        this.mc.field_1690.field_1903.method_23481(false);
-        this.mc.field_1690.field_1832.method_23481(false);
-        this.mc.field_1690.field_1886.method_23481(false);
+        this.mc.options.forwardKey.setPressed(false);
+        this.mc.options.backKey.setPressed(false);
+        this.mc.options.leftKey.setPressed(false);
+        this.mc.options.rightKey.setPressed(false);
+        this.mc.options.jumpKey.setPressed(false);
+        this.mc.options.sneakKey.setPressed(false);
+        this.mc.options.attackKey.setPressed(false);
     }
 
     private void switchToPick() {
-        if (this.isPickaxe(this.mc.field_1724.method_6047().method_7909())) {
+        if (this.isPickaxe(this.mc.player.getMainHandStack().getItem())) {
             return;
         }
         for (int i = 0; i < 9; ++i) {
-            if (!this.isPickaxe(this.mc.field_1724.method_31548().method_5438(i).method_7909())) continue;
-            this.setSelectedSlot(this.mc.field_1724.method_31548(), i);
+            if (!this.isPickaxe(this.mc.player.getInventory().getStack(i).getItem())) continue;
+            this.setSelectedSlot(this.mc.player.getInventory(), i);
             return;
         }
     }
 
-    private void setSelectedSlot(class_1661 inv, int slot) {
+    private void setSelectedSlot(PlayerInventory inv, int slot) {
         try {
             if (selectedSlotField == null) {
-                selectedSlotField = class_1661.class.getDeclaredField("selectedSlot");
+                selectedSlotField = PlayerInventory.class.getDeclaredField("selectedSlot");
                 selectedSlotField.setAccessible(true);
             }
             selectedSlotField.setInt(inv, slot);
@@ -1054,33 +1091,33 @@ extends Module {
         }
     }
 
-    private boolean isPickaxe(class_1792 i) {
-        return i == class_1802.field_8647 || i == class_1802.field_8387 || i == class_1802.field_8403 || i == class_1802.field_8335 || i == class_1802.field_8377 || i == class_1802.field_22024;
+    private boolean isPickaxe(Item i) {
+        return i == Items.WOODEN_PICKAXE || i == Items.STONE_PICKAXE || i == Items.IRON_PICKAXE || i == Items.GOLDEN_PICKAXE || i == Items.DIAMOND_PICKAXE || i == Items.NETHERITE_PICKAXE;
     }
 
     @EventHandler
     private void onRender3D(Render3DEvent event) {
-        if (this.mc.field_1687 == null) {
+        if (this.mc.world == null) {
             return;
         }
         if (((Boolean)this.renderOres.get()).booleanValue()) {
-            for (class_2338 p : this.orePositions) {
-                if (!this.isTargetOre(this.mc.field_1687.method_8320(p).method_26204())) continue;
+            for (BlockPos p : this.orePositions) {
+                if (!this.isTargetOre(this.mc.world.getBlockState(p).getBlock())) continue;
                 event.renderer.box(p, (Color)this.oreColor.get(), (Color)this.oreColor.get(), ShapeMode.Both, 0);
             }
         }
-        if (this.currentTarget != null && this.isTargetOre(this.mc.field_1687.method_8320(this.currentTarget).method_26204())) {
+        if (this.currentTarget != null && this.isTargetOre(this.mc.world.getBlockState(this.currentTarget).getBlock())) {
             event.renderer.box(this.currentTarget, (Color)this.targetColor.get(), (Color)this.targetColor.get(), ShapeMode.Both, 0);
         }
         if (!this.waypoints.isEmpty()) {
             for (int i = this.wpIndex; i < this.waypoints.size(); ++i) {
-                class_2338 p;
+                BlockPos p;
                 p = this.waypoints.get(i);
                 event.renderer.box(p, (Color)this.pathColor.get(), (Color)this.pathColor.get(), ShapeMode.Lines, 0);
                 if (i <= 0) continue;
-                class_243 a = class_243.method_24953((class_2382)((class_2382)this.waypoints.get(i - 1)));
-                class_243 b = class_243.method_24953((class_2382)p);
-                event.renderer.line(a.field_1352, a.field_1351, a.field_1350, b.field_1352, b.field_1351, b.field_1350, (Color)this.pathColor.get());
+                Vec3d a = Vec3d.ofCenter((Vec3i)((Vec3i)this.waypoints.get(i - 1)));
+                Vec3d b = Vec3d.ofCenter((Vec3i)p);
+                event.renderer.line(a.x, a.y, a.z, b.x, b.y, b.z, (Color)this.pathColor.get());
             }
         }
     }
@@ -1113,3 +1150,4 @@ extends Module {
         }
     }
 }
+
