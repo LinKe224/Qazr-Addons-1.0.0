@@ -249,9 +249,17 @@ extends Module {
     private void doTpTo(class_243 to) {
         class_243 from = new class_243(this.mc.field_1724.method_23317(), this.mc.field_1724.method_23318(), this.mc.field_1724.method_23321());
         double dist = from.method_1022(to);
-        int steps = (int)Math.ceil(dist / (Double)this.moveDistance.get());
-        for (int i = 1; i <= steps; ++i) {
-            this.sendMovePacket(from.field_1352, from.field_1351, from.field_1350);
+        double maxStep = (Double)this.moveDistance.get();
+        if (!Double.isFinite(maxStep) || maxStep <= 0.0) {
+            maxStep = 1.0;
+        }
+        int steps = (int)Math.ceil(dist / maxStep);
+        for (int i = 1; i < steps; ++i) {
+            double progress = (double)i / (double)steps;
+            double x = from.field_1352 + (to.field_1352 - from.field_1352) * progress;
+            double y = from.field_1351 + (to.field_1351 - from.field_1351) * progress;
+            double z = from.field_1350 + (to.field_1350 - from.field_1350) * progress;
+            this.sendMovePacket(x, y, z);
         }
         this.sendMovePacket(to.field_1352, to.field_1351, to.field_1350);
         if (((Boolean)this.kehd.get()).booleanValue()) {
